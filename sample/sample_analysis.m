@@ -53,3 +53,7 @@ plot(data.times, data.velocities);
 xlabel("Time (s)");
 ylabel("Airspeed (m/s)");
 title("Airspeed in wind tunnel over time");
+
+%% STATS AGAIN
+stats.velocitiesMax = max(data.velocities);
+stats.velocitiesAvg = mean(data.velocities);
