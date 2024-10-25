@@ -27,7 +27,7 @@ data.pressures = data.clean(:, 2);
 stats.pressStd = std(data.pressures);
 stats.pressAvg = mean(data.pressures);
 
-%% Plot Data over Time
+%% Plot Pressure over Time
 
 figure();
 hold on;
