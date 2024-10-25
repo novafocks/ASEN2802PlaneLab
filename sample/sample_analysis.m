@@ -65,6 +65,24 @@ data.velocities = sqrt(2 .* data.pressures .* consts.rhoConst);
 stats.velocitiesMax = max(data.velocities);
 stats.velocitiesAvg = mean(data.velocities);
 
+%% Calculating Error
+
+consts.partialConst = sqrt((consts.rConst * consts.tempATM ...
+    .* data.pressures) / consts.pressATM) / sqrt(2);
+
+% Partial with pressures
+partials(:, 1) = consts.partialConst ./ data.pressures;
+
+% Partial with atmospheric temperature
+partials(:, 2) = consts.partialConst / consts.tempATM;
+
+% Partial with atmospheric pressure
+partials(:, 3) = consts.partialConst / consts.pressATM;
+
+errors = [stats.pressStd consts.tempATMErr consts.pressATMErr];
+
+stats.velocityErr = transpose(calculateError(partials, errors));
+
 %% Plotting Velocities over Time
 
 figure();
@@ -73,11 +91,24 @@ hold on;
 % Data points/lines
 plot(data.times, data.velocities);
 yline(stats.velocitiesAvg, LineWidth=2, Alpha=1.0);
+plot(data.times, stats.velocitiesAvg + stats.velocityErr, '--r');
+plot(data.times, stats.velocitiesAvg - stats.velocityErr, '--r');
 
 % Figure labels
 xlabel("Time (s)");
 ylabel("Airspeed (m/s)");
 title("Airspeed in wind tunnel over time");
-legend("Airspeed over time", "Mean airspeed");
+legend("Airspeed over time", "Mean airspeed", "", "Mean airspeed \pm \sigma");
 
 hold off;
+
+%% Function
+
+function error = calculateError(partials, errors)
+    partErr = (partials .* errors) .^ 2;
+    
+    % WARNING: DOESN'T WORK PROPERLY WHEN # VARIABLES BELOW # POINTS
+    for i = 1:length(partErr)
+        error(i) = sqrt(sum(partErr(i, :)));
+    end
+end
