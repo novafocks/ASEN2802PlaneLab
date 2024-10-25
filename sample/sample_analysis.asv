@@ -34,13 +34,12 @@ hold on;
 
 % Data points/lines
 plot(data.times, data.pressures);
-yline(stats.pressAvg, LineWidth=2, Alpha=1.0);
+yline(stats.pressAvg, Alpha=);
 
 % Figure labels
 xlabel("Time (s)");
 ylabel("Relative pressure (Pa)");
 title("Relative pressure in wind tunnel over time");
-legend("Pressure over time", "Mean pressure")
 
 hold off;
 
@@ -78,6 +77,4 @@ yline(stats.velocitiesAvg, LineWidth=2, Alpha=1.0);
 xlabel("Time (s)");
 ylabel("Airspeed (m/s)");
 title("Airspeed in wind tunnel over time");
-legend("Airspeed over time", "Mean airspeed");
-
-hold off;
+legend("Airspeed points (m/s)", "Mean airspeed (m/s)")
