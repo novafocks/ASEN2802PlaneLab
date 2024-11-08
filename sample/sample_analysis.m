@@ -67,6 +67,7 @@ stats.velocitiesAvg = mean(data.velocities);
 
 %% Calculating Error
 
+% Partial constant, all are multiplied by this value!
 consts.partialConst = sqrt((consts.rConst * consts.tempATM ...
     .* data.pressures) / consts.pressATM) / sqrt(2);
 
@@ -79,8 +80,10 @@ partials(:, 2) = consts.partialConst / consts.tempATM;
 % Partial with atmospheric pressure
 partials(:, 3) = consts.partialConst / consts.pressATM;
 
+% List of errors
 errors = [stats.pressStd consts.tempATMErr consts.pressATMErr];
 
+% Calculation of velocity error
 stats.velocityErr = transpose(calculateError(partials, errors));
 
 %% Plotting Velocities over Time
