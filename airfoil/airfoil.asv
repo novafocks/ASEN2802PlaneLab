@@ -1,0 +1,27 @@
+%% Clear Workspace
+
+clear; clc; close all;
+
+%% Import Data
+
+raw = readmatrix("ASEN2802_InfiniteWing_FullRange.csv");
+
+%% Testing coefficient of pressure
+
+p_M = raw(:, 15:end);
+q_inf = raw(:, 5);
+
+
+c_P = c_P_calculator(p_M, q_inf);
+
+%% Functions
+
+function [c_P] = c_P_calculator(p_M, q_inf)
+    [p_M_rows p_M_cols] = size(p_M);
+
+    c_P = zeros([p_M_rows p_M_cols]);
+
+    for i = 1:p_M_cols
+        c_P(i) = (p_M(:, i) - p_inf) ./ q_inf;
+    end
+end
