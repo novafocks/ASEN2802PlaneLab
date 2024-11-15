@@ -13,6 +13,8 @@ q_inf = raw(:, 5);
 aoa = raw(:, 8);
 
 c_P = c_P_calculator(p_M, q_inf,aoa);
+c_p_plot = transpose(c_P(490, 1:15));
+
 
 unique_aoa = unique(aoa);
 num_ports = size(c_P, 2) - 1;
@@ -47,15 +49,18 @@ port_data = [
     18, 0, 0, 0;
 ];
 
+plot(port_data(1:15, 3)./3.5, c_p_plot);
+set(gca, 'YDir','reverse')
+
 % Plot averaged Cp values for each angle of attack
 figure();
+hold on
 num_ports = 15; % Adjust as needed if fewer ports are present
 x_coords = port_data(1:num_ports, 3)./3.5; % x-coordinates for each port
 
 for i = 1:length(unique_aoa)
     cp_values = avg_c_P(i, 1:num_ports); % Cp values for each port at current AoA
     plot(x_coords, cp_values, '-o', 'DisplayName', sprintf('AoA %.2f', unique_aoa(i)));
-    hold on;
 end
 
 xlabel('Normalized Chord Position');
