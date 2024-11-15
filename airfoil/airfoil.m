@@ -13,17 +13,22 @@ q_inf = raw(:, 5);
 aoa = raw(:, 8);
 
 c_P = c_P_calculator(p_M, q_inf,aoa);
-c_p_plot = transpose(c_P(490, 1:15));
+c_p_plot = transpose(c_P(490, 1:16));
+c_p_plot(18) = c_p_plot(1);
 
 
 unique_aoa = unique(aoa);
-num_ports = size(c_P, 2) - 1;
+num_ports = 17;
 avg_c_P = zeros(length(unique_aoa), num_ports);
 
 for i = 1:length(unique_aoa)
     aoa_idx = aoa == unique_aoa(i);
     avg_c_P(i, :) = mean(c_P(aoa_idx, 1:num_ports), 1);
 end
+
+act_c_P = avg_c_P(25,:)';
+act_c_P(17) = (0);
+act_c_P(18) = act_c_P(1);
 
 %% CHAT GPT
 
@@ -49,14 +54,19 @@ port_data = [
     18, 0, 0, 0;
 ];
 
-plot(port_data(1:15, 3)./3.5, c_p_plot);
+hold on
+plot(port_data(1:18, 3)./3.5, act_c_P);
 set(gca, 'YDir','reverse')
+xlabel('Normalized Chord Position');
+ylabel('Average Coefficient of Pressure (Cp)');
+title('Average C_P Distribution for AoA of 9 degrees');
+hold off
 
 % Plot averaged Cp values for each angle of attack
 figure();
 hold on
-num_ports = 15; % Adjust as needed if fewer ports are present
-x_coords = port_data(1:num_ports, 3)./3.5; % x-coordinates for each port
+num_ports = 16;
+x_coords = port_data(1:num_ports, 3)./3.5;
 
 for i = 1:length(unique_aoa)
     cp_values = avg_c_P(i, 1:num_ports); % Cp values for each port at current AoA
@@ -65,11 +75,18 @@ end
 
 xlabel('Normalized Chord Position');
 ylabel('Average Coefficient of Pressure (Cp)');
-title('Average Coefficient of Pressure Distribution along Chord Length');
-legend show;
+title('Average C_P Distribution along Chord Length');
 set(gca, 'YDir', 'reverse');
 hold off;
 
+c_n = -trapz(port_data(1:18, 3)./3.5, act_c_P);
+c_a = trapz(port_data(1:18, 4)./3.5, act_c_P);
+
+c_l(unique_aoa,1) = c_n * cosd(unique_aoa) - c_a * sind(unique_aoa);
+c_d(unique_aoa,1) = c_n * sind(unique_aoa) + c_a * cosd(unique_aoa);
+
+figure()
+plot(unique_aoa,c_l','MarkerSize',100)
 %% Functions
 
 function [c_P] = c_P_calculator(p_M, q_inf, aoa)
