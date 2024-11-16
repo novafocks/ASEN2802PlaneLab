@@ -17,12 +17,11 @@ q_inf = raw(:, 5);
 % Angles of attack
 aoa = raw(:, 8);
 
-% Calculating MATRIX of coefficient of pressure
+% 
 c_P = c_P_calculator(p_M, q_inf, aoa);
 c_p_plot = transpose(c_P(490, 1:16));
 c_p_plot(18) = c_p_plot(1);
 
-% Calculating average coefficent of pressure for each port
 unique_aoa = unique(aoa);
 num_ports = 17;
 avg_c_P = zeros(length(unique_aoa), num_ports);
@@ -32,7 +31,6 @@ for i = 1:length(unique_aoa)
     avg_c_P(i, :) = mean(c_P(aoa_idx, 1:num_ports), 1);
 end
 
-% Giving known values to actual coefficient of pressure
 act_c_P = avg_c_P(25,:)';
 act_c_P(17) = (0);
 act_c_P(18) = act_c_P(1);
@@ -61,10 +59,8 @@ port_data = [
     18, 0, 0, 0;
 ];
 
-% Defining cord length
 cord_length = max(port_data(:, 3));
 
-% Plotting average coefficient of pressure for nine degrees AoA
 hold on
 plot(port_data(1:18, 3) ./ cord_length, act_c_P);
 set(gca, 'YDir', 'reverse')
@@ -89,8 +85,6 @@ xlabel('Normalized Chord Position');
 ylabel('Average Coefficient of Pressure (C_p)');
 title('Average C_P Distribution along Chord Length');
 set(gca, 'YDir', 'reverse');
-legend show;
-legend("Location", "eastoutside");
 hold off;
 
 % Calculating normal and axial force coefficients
@@ -105,7 +99,6 @@ end
 
 c_l = (c_l)';
 c_d = (c_d)';
-
 %% Plotting Coefficients of Lift and Drag over AoA
 
 % Coefficient of lift plot
@@ -113,7 +106,7 @@ c_d = (c_d)';
 figure();
 plot(unique_aoa, c_l);
 
-title("Coefficient of lift over angle of attack");
+title("Co")
 xlabel("Angle of attack (degrees)");
 ylabel("Coefficient of lift");
 
@@ -122,7 +115,6 @@ ylabel("Coefficient of lift");
 figure();
 plot(unique_aoa, c_d, "Color", [0.8500 0.3250 0.0980], "LineStyle", "-");
 
-title("Coefficient of drag over angle of attack");
 xlabel("Angle of attack (degrees)");
 ylabel("Coefficient of drag");
 
