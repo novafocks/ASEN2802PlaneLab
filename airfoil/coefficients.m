@@ -133,15 +133,19 @@ set(gca, 'YDir', 'reverse');
 
 %% Step 5 - Calculating C_L and C_D
 
+% Chord length definition
 data.c.cord_length = max(data.p.y);
 
+% Averaging coefficients of pressure
 for i = 1 : data.c.num_ports
     coef.pressure_avg(i) = mean(coef.pressure(:, i));
 end
 
+% Calculating coefficient of normal and axial force
 coef.normal = - (1 / data.c.cord_length) * trapz(data.p.y_ports, coef.pressure_avg);
 coef.axial = (1 / data.c.cord_length) * trapz(data.p.z_ports, coef.pressure_avg);
 
+% Calculating coefficients of lift and drag
 for i = 1 : length(data.c.unique_aoa)
     misc.curr_aoa = data.c.unique_aoa(i);
 
