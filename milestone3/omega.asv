@@ -1,0 +1,80 @@
+%% PROPERTY OF ASEN 2802 GROUP WHATEVER
+
+%% Clear Workspace
+
+clear; clc; close all;
+
+%% Going in for extraction
+
+% Importing raw data
+raw.collected = readmatrix("FullSpanTest.csv");
+
+% Spanwise positions AND vector of UNIQUE spanwise positions
+const.c.spanwise_positions = raw.collected(:, 9);
+const.c.axis_cp = unique(const.c.spanwise_positions);
+
+
+
+%% Appendix - C_P Function
+
+function c_P = c_P_calc(aoa, const)
+
+    % Making new matrix of correct size
+    [misc.p_M_rows, misc.p_M_cols] = size(const.c.p_M);
+    coef.pressure_full = zeros([misc.p_M_rows misc.p_M_cols]);
+    
+    % Calculating each value of coefficients of pressure
+    for i = 1 : misc.p_M_cols
+    
+        % Pressure matrix divided by dynamic pressure
+        coef.pressure_full(:, i) = const.c.p_M(:, i) ./ ...
+                                    (const.c.q_inf);
+    
+    end
+
+    % Create matrix of coefficients of pressure
+    coef.pressure = zeros([length(const.c.axis_cp) const.c.num_ports]);
+    
+    % Calculate coefficients of pressure
+    for i = 1 : length(const.c.axis_cp)
+    
+        % Get the indices where the angle of attack matches the current angle
+        idx = (const.c.aoa == const.c.axis_cp(i));
+        
+        % Average the pressure data for those indices
+        coef.pressure(i, :) = mean(coef.pressure_full(idx, :), 1);
+    
+    end
+
+    % Take coefficients of pressure for ports with specific AoA
+    coef.pressure_aoa = coef.pressure(const.c.axis_cp == aoa, :);
+
+    
+    % Linear fit of pressure from ports 8 to 9 for estimation
+    linfit.port8to9_slope       = (coef.pressure_aoa(9) - coef.pressure_aoa(8)) / ...
+                                    (const.p.y_ports(9) - const.p.y_ports(8));
+    linfit.port8to9_intercept   = coef.pressure_aoa(8) - (linfit.port8to9_slope * const.p.y_ports(8));
+
+    % Linear fit of pressure from ports 10 to 11 for estimation
+    linfit.port10to11_slope     = (coef.pressure_aoa(11) - coef.pressure_aoa(10)) / ...
+                                    (const.p.y_ports(11) - const.p.y_ports(10));
+    linfit.port10to11_intercept = coef.pressure_aoa(10) - (linfit.port10to11_slope * const.p.y_ports(10));
+
+    
+    linfit.port8to9_estimation      = linfit.port8to9_intercept + ...
+                                    (linfit.port8to9_slope * const.c.cord_length);
+
+    linfit.port10to11_estimation    = linfit.port10to11_intercept + ...
+                                    (linfit.port10to11_slope * const.c.cord_length);
+
+    % Calculating pressure at trailing edge using estimations
+    const.c.p_TE                    = mean([linfit.port8to9_estimation, ...
+                                            linfit.port10to11_estimation]);
+
+    coef.pressure_aoa_wTE           = [coef.pressure_aoa(1:9) ...
+                                        const.c.p_TE ...
+                                        coef.pressure_aoa(10:end)];
+
+
+    c_P = coef.pressure_aoa_wTE;
+end
